@@ -30,7 +30,7 @@ resource "azurerm_data_factory_trigger_schedule" "data_factory_trigger_schedules
       hours         = schedule.value.hours
       minutes       = schedule.value.minutes
       dynamic "monthly" {
-        for_each = schedule.value.monthly != null ? [schedule.value.monthly] : []
+        for_each = schedule.value.monthly != null ? schedule.value.monthly : []
         content {
           week    = monthly.value.week
           weekday = monthly.value.weekday

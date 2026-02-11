@@ -31,12 +31,12 @@ EOT
   type = map(object({
     data_factory_id     = string
     name                = string
-    activated           = optional(bool, true)
+    activated           = optional(bool) # Default: true
     annotations         = optional(list(string))
     description         = optional(string)
     end_time            = optional(string)
-    frequency           = optional(string, "Minute")
-    interval            = optional(number, 1)
+    frequency           = optional(string) # Default: "Minute"
+    interval            = optional(number) # Default: 1
     pipeline_name       = optional(string)
     pipeline_parameters = optional(map(string))
     start_time          = optional(string)
@@ -50,11 +50,19 @@ EOT
       days_of_week  = optional(list(string))
       hours         = optional(list(number))
       minutes       = optional(list(number))
-      monthly = optional(object({
+      monthly = optional(list(object({
         week    = optional(number)
         weekday = string
-      }))
+      })))
     }))
   }))
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.schedule.monthly == null || (length(v.schedule.monthly) >= 1)
+      )
+    ])
+    error_message = "Each monthly list must contain at least 1 items"
+  }
 }
 
