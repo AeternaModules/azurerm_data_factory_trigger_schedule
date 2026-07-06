@@ -64,5 +64,81 @@ EOT
     ])
     error_message = "Each monthly list must contain at least 1 items"
   }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.description == null || (length(v.description) > 0)
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.schedule == null || (v.schedule.hours == null || (v.schedule.hours >= 0 && v.schedule.hours <= 24))
+      )
+    ])
+    error_message = "must be between 0 and 24"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.schedule == null || (v.schedule.minutes == null || (v.schedule.minutes >= 0 && v.schedule.minutes <= 60))
+      )
+    ])
+    error_message = "must be between 0 and 60"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.time_zone == null || (length(v.time_zone) > 0)
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.interval == null || (v.interval >= 1)
+      )
+    ])
+    error_message = "must be at least 1"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.annotations == null || (length(v.annotations) > 0)
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  # --- Unconfirmed validation candidates, derived from azurerm_data_factory_trigger_schedule's provider source ---
+  # Not auto-enabled: either a bespoke provider validator we can't safely translate,
+  # or a path that crosses a list-typed block (needs its own for_each wrapping).
+  # Review, translate into a real validation{} block above, and delete once confirmed.
+  # path: name
+  #   source:    [from validate.DataFactoryPipelineAndTriggerName] !regexp.MustCompile(`^[A-Za-z0-9_][^<>*#.%&:\\+?/]*$`).MatchString(value)
+  # path: data_factory_id
+  #   source:    [from factories.ValidateFactoryID] !ok
+  # path: data_factory_id
+  #   source:    [from factories.ValidateFactoryID] err != nil
+  # path: schedule.days_of_month[*]
+  #   source:    validation.Any(...) - no translation rule yet, add one
+  # path: schedule.days_of_week[*]
+  #   source:    validation.IsDayOfTheWeek(...) - no translation rule yet, add one
+  # path: schedule.monthly.weekday
+  #   source:    validation.IsDayOfTheWeek(...) - no translation rule yet, add one
+  # path: schedule.monthly.week
+  #   source:    validation.Any(...) - no translation rule yet, add one
+  # path: start_time
+  #   source:    validation.IsRFC3339Time(...) - no translation rule yet, add one
+  # path: end_time
+  #   source:    validation.IsRFC3339Time(...) - no translation rule yet, add one
+  # path: frequency
+  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: pipeline.name
+  #   source:    [from validate.DataFactoryPipelineAndTriggerName] !regexp.MustCompile(`^[A-Za-z0-9_][^<>*#.%&:\\+?/]*$`).MatchString(value)
+  # path: pipeline_name
+  #   source:    [from validate.DataFactoryPipelineAndTriggerName] !regexp.MustCompile(`^[A-Za-z0-9_][^<>*#.%&:\\+?/]*$`).MatchString(value)
 }
 
