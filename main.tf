@@ -15,7 +15,7 @@ resource "azurerm_data_factory_trigger_schedule" "data_factory_trigger_schedules
   time_zone           = each.value.time_zone
 
   dynamic "pipeline" {
-    for_each = each.value.pipeline != null ? [each.value.pipeline] : []
+    for_each = each.value.pipeline != null ? each.value.pipeline : []
     content {
       name       = pipeline.value.name
       parameters = pipeline.value.parameters
