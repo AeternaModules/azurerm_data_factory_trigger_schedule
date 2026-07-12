@@ -59,7 +59,7 @@ EOT
   validation {
     condition = alltrue([
       for k, v in var.data_factory_trigger_schedules : (
-        v.schedule.monthly == null || (length(v.schedule.monthly) >= 1)
+        v.schedule == null || (v.schedule.monthly == null || (length(v.schedule.monthly) >= 1))
       )
     ])
     error_message = "Each monthly list must contain at least 1 items"
