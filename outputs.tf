@@ -1,3 +1,7 @@
+output "data_factory_trigger_schedules_id" {
+  description = "Map of id values across all data_factory_trigger_schedules, keyed the same as var.data_factory_trigger_schedules"
+  value       = { for k, v in azurerm_data_factory_trigger_schedule.data_factory_trigger_schedules : k => v.id }
+}
 output "data_factory_trigger_schedules_activated" {
   description = "Map of activated values across all data_factory_trigger_schedules, keyed the same as var.data_factory_trigger_schedules"
   value       = { for k, v in azurerm_data_factory_trigger_schedule.data_factory_trigger_schedules : k => v.activated }
