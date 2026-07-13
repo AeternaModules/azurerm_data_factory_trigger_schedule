@@ -31,12 +31,12 @@ EOT
   type = map(object({
     data_factory_id     = string
     name                = string
-    activated           = optional(bool) # Default: true
+    activated           = optional(bool)
     annotations         = optional(list(string))
     description         = optional(string)
     end_time            = optional(string)
-    frequency           = optional(string) # Default: "Minute"
-    interval            = optional(number) # Default: 1
+    frequency           = optional(string)
+    interval            = optional(number)
     pipeline_name       = optional(string)
     pipeline_parameters = optional(map(string))
     start_time          = optional(string)
@@ -56,14 +56,6 @@ EOT
       })))
     }))
   }))
-  validation {
-    condition = alltrue([
-      for k, v in var.data_factory_trigger_schedules : (
-        v.schedule == null || (v.schedule.monthly == null || (length(v.schedule.monthly) >= 1))
-      )
-    ])
-    error_message = "Each monthly list must contain at least 1 items"
-  }
   # --- Unconfirmed validation candidates, derived from azurerm_data_factory_trigger_schedule's provider source ---
   # Not auto-enabled: either a bespoke provider validator we can't safely translate,
   # or a path that crosses a list-typed block (needs its own for_each wrapping).
