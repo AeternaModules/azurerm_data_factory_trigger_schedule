@@ -56,51 +56,70 @@ EOT
       })))
     }))
   }))
-  # --- Unconfirmed validation candidates, derived from azurerm_data_factory_trigger_schedule's provider source ---
-  # Not auto-enabled: either a bespoke provider validator we can't safely translate,
-  # or a path that crosses a list-typed block (needs its own for_each wrapping).
-  # Review, translate into a real validation{} block above, and delete once confirmed.
-  # path: name
-  #   source:    [from validate.DataFactoryPipelineAndTriggerName] !regexp.MustCompile(`^[A-Za-z0-9_][^<>*#.%&:\\+?/]*$`).MatchString(value)
-  # path: data_factory_id
-  #   source:    [from factories.ValidateFactoryID] !ok
-  # path: data_factory_id
-  #   source:    [from factories.ValidateFactoryID] err != nil
-  # path: description
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: schedule.days_of_month[*]
-  #   source:    validation.Any(...) - no translation rule yet, add one
-  # path: schedule.days_of_week[*]
-  #   source:    validation.IsDayOfTheWeek(...) - no translation rule yet, add one
-  # path: schedule.hours[*]
-  #   condition: value >= 0 && value <= 24
-  #   message:   must be between 0 and 24
-  # path: schedule.minutes[*]
-  #   condition: value >= 0 && value <= 60
-  #   message:   must be between 0 and 60
-  # path: schedule.monthly.weekday
-  #   source:    validation.IsDayOfTheWeek(...) - no translation rule yet, add one
-  # path: schedule.monthly.week
-  #   source:    validation.Any(...) - no translation rule yet, add one
-  # path: start_time
-  #   source:    validation.IsRFC3339Time(...) - no translation rule yet, add one
-  # path: end_time
-  #   source:    validation.IsRFC3339Time(...) - no translation rule yet, add one
-  # path: time_zone
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: frequency
-  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
-  # path: interval
-  #   condition: value >= 1
-  #   message:   must be at least 1
-  # path: pipeline.name
-  #   source:    [from validate.DataFactoryPipelineAndTriggerName] !regexp.MustCompile(`^[A-Za-z0-9_][^<>*#.%&:\\+?/]*$`).MatchString(value)
-  # path: pipeline_name
-  #   source:    [from validate.DataFactoryPipelineAndTriggerName] !regexp.MustCompile(`^[A-Za-z0-9_][^<>*#.%&:\\+?/]*$`).MatchString(value)
-  # path: annotations[*]
-  #   condition: length(value) > 0
-  #   message:   must not be empty
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.description == null || (length(v.description) > 0)
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.schedule == null || (v.schedule.days_of_month == null || (alltrue([for x in v.schedule.days_of_month : (x >= 1 && x <= 31) || (x >= -31 && x <= -1)])))
+      )
+    ])
+    error_message = "any of: must be between 1 and 31; must be between -31 and -1"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.schedule == null || (v.schedule.hours == null || (alltrue([for x in v.schedule.hours : x >= 0 && x <= 24])))
+      )
+    ])
+    error_message = "must be between 0 and 24"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.schedule == null || (v.schedule.minutes == null || (alltrue([for x in v.schedule.minutes : x >= 0 && x <= 60])))
+      )
+    ])
+    error_message = "must be between 0 and 60"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.schedule == null || (v.schedule.monthly == null || alltrue([for item in v.schedule.monthly : (item.week == null || ((item.week >= 1 && item.week <= 5) || (item.week >= -5 && item.week <= -1)))]))
+      )
+    ])
+    error_message = "any of: must be between 1 and 5; must be between -5 and -1"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.time_zone == null || (length(v.time_zone) > 0)
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.interval == null || (v.interval >= 1)
+      )
+    ])
+    error_message = "must be at least 1"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.data_factory_trigger_schedules : (
+        v.annotations == null || (alltrue([for x in v.annotations : length(x) > 0]))
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  # Note: 10 additional provider-side validators are enforced at apply time but not mirrored as validation{} blocks here (bespoke or non-mechanically-translatable).
 }
 
