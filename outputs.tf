@@ -48,7 +48,7 @@ output "data_factory_trigger_schedules_pipeline_parameters" {
 }
 output "data_factory_trigger_schedules_schedule" {
   description = "Map of schedule values across all data_factory_trigger_schedules, keyed the same as var.data_factory_trigger_schedules"
-  value       = { for k, v in azurerm_data_factory_trigger_schedule.data_factory_trigger_schedules : k => v.schedule if v.schedule != null && length(v.schedule) > 0 }
+  value       = { for k, v in azurerm_data_factory_trigger_schedule.data_factory_trigger_schedules : k => one(v.schedule) if v.schedule != null && length(v.schedule) > 0 }
 }
 output "data_factory_trigger_schedules_start_time" {
   description = "Map of start_time values across all data_factory_trigger_schedules, keyed the same as var.data_factory_trigger_schedules"
